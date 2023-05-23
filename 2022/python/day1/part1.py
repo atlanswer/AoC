@@ -34,7 +34,7 @@ def main() -> None:
                 current_max = accumulator
             accumulator = 0
 
-    logger.info(f"The Elf that carries the most Calories carries {current_max}")
+    logger.info(f"Part1: {current_max}")
 
 
 if __name__ == "__main__":
