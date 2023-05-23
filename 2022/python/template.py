@@ -30,4 +30,4 @@ if __name__ == "__main__":
     t_start = time.perf_counter()
     main()
     t_finish = time.perf_counter()
-    logger.info("Execution time: %0.4f seconds.", t_finish - t_start)
+    logger.info(f"Execution time: {t_finish - t_start:.4f} seconds.")

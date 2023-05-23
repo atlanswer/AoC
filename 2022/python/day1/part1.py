@@ -23,11 +23,22 @@ def main() -> None:
     with open(INPUT_FILE) as f:
         data = f.read().splitlines()
 
-    logger.debug(data)
+    current_max = 0
+    accumulator = 0
+
+    for line in data:
+        if bool(line.strip()):
+            accumulator += int(line)
+        else:
+            if accumulator > current_max:
+                current_max = accumulator
+            accumulator = 0
+
+    logger.info(f"The Elf that carries the most Calories carries {current_max}")
 
 
 if __name__ == "__main__":
     t_start = time.perf_counter()
     main()
     t_finish = time.perf_counter()
-    logger.info("Execution time: %0.4f seconds.", t_finish - t_start)
+    logger.info(f"Execution time: {t_finish - t_start:.4f} seconds.")
