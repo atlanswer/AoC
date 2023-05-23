@@ -40,7 +40,7 @@ def main() -> None:
                 top_three[2] = accumulator
             accumulator = 0
 
-    logger.info(f"The Elf that carries the most Calories carries {sum(top_three)}")
+    logger.info(f"Part2: {sum(top_three)}")
 
 
 if __name__ == "__main__":
