@@ -3,15 +3,10 @@ Solving: https://adventofcode.com/2022/day/1
 """
 
 from pathlib import Path
-import logging
+from loguru import logger
 import time
 
-logging.basicConfig(
-    format="%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:\t%(message)s",
-    datefmt="%H:%M:%S",
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.add("log.log")
 
 AOC_DAY = Path(__file__).parent.name
 INPUT_DIR = Path(__file__).parents[2] / "input"
@@ -19,9 +14,9 @@ INPUT_FILE = INPUT_DIR / AOC_DAY / "input.txt"
 assert INPUT_FILE.exists(), "Input file not present."
 
 
+@logger.catch
 def main() -> None:
-    with open(INPUT_FILE) as f:
-        data = f.read().splitlines()
+    data = INPUT_FILE.read_text()
 
     logger.debug(data)
 
