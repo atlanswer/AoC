@@ -2,9 +2,10 @@
 Solving: https://adventofcode.com/2022/day/1
 """
 
-from pathlib import Path
-from loguru import logger
 import time
+from pathlib import Path
+
+from loguru import logger
 
 logger.add("log.log")
 
