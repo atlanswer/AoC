@@ -1,5 +1,5 @@
 """
-Solving: https://adventofcode.com/2022/day/1
+Solving: https://adventofcode.com/2022/day/1#part2
 """
 
 from pathlib import Path
