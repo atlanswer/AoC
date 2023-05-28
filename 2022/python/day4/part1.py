@@ -19,9 +19,32 @@ assert INPUT_FILE.exists(), "Input file not present."
 def main() -> None:
     data = INPUT_FILE.read_text().splitlines()
 
+    count = 0
+
+    #     data = """2-4,6-8
+    # 2-3,4-5
+    # 5-7,7-9
+    # 2-8,3-7
+    # 6-6,4-6
+    # 2-6,4-8""".splitlines()
+
     for line in data:
-        assignment_pair = line.split(",")
-        assignment = list(map(lambda p: p.split("-"), assignment_pair))
+        assignment = line.split(",")
+        assignment = [s.split("-") for s in assignment]
+        assignment = [[int(a), int(b)] for a, b in assignment]
+
+        if assignment[0][0] > assignment[1][0]:
+            if assignment[0][1] <= assignment[1][1]:
+                count += 1
+            continue
+        if assignment[0][0] < assignment[1][0]:
+            if assignment[0][1] >= assignment[1][1]:
+                count += 1
+            continue
+        if assignment[0][0] == assignment[1][0]:
+            count += 1
+
+    logger.info(f"Part1: {count}")
 
 
 if __name__ == "__main__":
