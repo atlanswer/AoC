@@ -1,5 +1,5 @@
 """
-Solving: https://adventofcode.com/2022/day/1
+Solving: https://adventofcode.com/2022/day/1#part2
 """
 
 from itertools import takewhile
@@ -60,11 +60,9 @@ def main() -> None:
 
     steps = list(map(parse_step, steps))
 
-    # logger.debug(steps)
-
     for step in steps:
-        for n in range(step[0]):
-            stacks[step[2] - 1].append(stacks[step[1] - 1].pop())
+        stacks[step[2] - 1].extend(stacks[step[1] - 1][-step[0] :])
+        stacks[step[1] - 1] = stacks[step[1] - 1][: -step[0]]
 
     tops = "".join([i.pop() for i in stacks])
 
