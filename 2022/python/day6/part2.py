@@ -29,16 +29,16 @@ def main() -> None:
 
     start_marker = {data[cursor]: 1}
 
-    for i in range(3):
+    for i in range(13):
         cursor += 1
         if data[cursor] in start_marker:
             start_marker[data[cursor]] += 1
         else:
             start_marker[data[cursor]] = 1
 
-    while len(start_marker) != 4:
+    while len(start_marker) != 14:
         cursor += 1
-        key2pop = data[cursor - 4]
+        key2pop = data[cursor - 14]
         if start_marker[key2pop] == 1:
             del start_marker[key2pop]
         else:
