@@ -3,6 +3,7 @@ Solving: https://adventofcode.com/2022/day/7#part2
 """
 
 from __future__ import annotations
+from collections import deque
 
 import time
 from pathlib import Path
@@ -29,29 +30,29 @@ class Directory:
 def main() -> None:
     data = INPUT_FILE.read_text().splitlines()
 
-    data = r"""$ cd /
-$ ls
-dir a
-14848514 b.txt
-8504156 c.dat
-dir d
-$ cd a
-$ ls
-dir e
-29116 f
-2557 g
-62596 h.lst
-$ cd e
-$ ls
-584 i
-$ cd ..
-$ cd ..
-$ cd d
-$ ls
-4060174 j
-8033020 d.log
-5626152 d.ext
-7214296 k""".splitlines()
+#     data = r"""$ cd /
+# $ ls
+# dir a
+# 14848514 b.txt
+# 8504156 c.dat
+# dir d
+# $ cd a
+# $ ls
+# dir e
+# 29116 f
+# 2557 g
+# 62596 h.lst
+# $ cd e
+# $ ls
+# 584 i
+# $ cd ..
+# $ cd ..
+# $ cd d
+# $ ls
+# 4060174 j
+# 8033020 d.log
+# 5626152 d.ext
+# 7214296 k""".splitlines()
 
     root = Directory("/")
     cwd: Directory = root
@@ -96,7 +97,16 @@ $ ls
     unused_space = total_space - root_size
     requested_space = required_space - unused_space
 
-    logger.info(f"root: {root_size}")
+    current_smallest_size = root_size
+
+    search_queue = deque([root])
+    while len(search_queue) > 0:
+        cwd = search_queue.popleft()
+        if current_smallest_size > cwd.total_file_size >= requested_space:
+            current_smallest_size = cwd.total_file_size
+        search_queue.extend(cwd.children)
+
+    logger.info(f"Part2: {current_smallest_size}")
 
 
 if __name__ == "__main__":
