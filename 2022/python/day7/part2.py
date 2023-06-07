@@ -1,5 +1,5 @@
 """
-Solving: https://adventofcode.com/2022/day/7
+Solving: https://adventofcode.com/2022/day/7#part2
 """
 
 from __future__ import annotations
@@ -29,33 +29,32 @@ class Directory:
 def main() -> None:
     data = INPUT_FILE.read_text().splitlines()
 
-    #     data = r"""$ cd /
-    # $ ls
-    # dir a
-    # 14848514 b.txt
-    # 8504156 c.dat
-    # dir d
-    # $ cd a
-    # $ ls
-    # dir e
-    # 29116 f
-    # 2557 g
-    # 62596 h.lst
-    # $ cd e
-    # $ ls
-    # 584 i
-    # $ cd ..
-    # $ cd ..
-    # $ cd d
-    # $ ls
-    # 4060174 j
-    # 8033020 d.log
-    # 5626152 d.ext
-    # 7214296 k""".splitlines()
+    data = r"""$ cd /
+$ ls
+dir a
+14848514 b.txt
+8504156 c.dat
+dir d
+$ cd a
+$ ls
+dir e
+29116 f
+2557 g
+62596 h.lst
+$ cd e
+$ ls
+584 i
+$ cd ..
+$ cd ..
+$ cd d
+$ ls
+4060174 j
+8033020 d.log
+5626152 d.ext
+7214296 k""".splitlines()
 
     root = Directory("/")
     cwd: Directory = root
-    candidates: list[Directory] = []
 
     for output in data:
         match output.split():
@@ -70,8 +69,6 @@ def main() -> None:
                                     case None:
                                         raise KeyError("No further than root.")
                                     case _:
-                                        if cwd.total_file_size <= 100000:
-                                            candidates.append(cwd)
                                         cwd.parent.total_file_size += (
                                             cwd.total_file_size
                                         )
@@ -83,25 +80,19 @@ def main() -> None:
                     case ["ls"]:
                         ...
             case ["dir", dir_name]:
-                if cwd is None:
-                    continue
                 cwd.children.append(Directory(dir_name, cwd))
             case [file_size, file_name] if file_size.isdigit():
-                if cwd is None:
-                    continue
                 cwd.total_file_size += int(file_size)
 
     while cwd is not root:
-        if cwd.total_file_size <= 100000:
-            candidates.append(cwd)
         if cwd.parent is None:
             break
         cwd.parent.total_file_size += cwd.total_file_size
         cwd = cwd.parent
 
-    sum_size = sum(map(lambda x: x.total_file_size, candidates))
+    root_size = root.total_file_size
 
-    logger.info(f"Part1: {sum_size}")
+    logger.info(f"root: {root_size}")
 
 
 if __name__ == "__main__":
