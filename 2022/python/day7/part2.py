@@ -91,6 +91,10 @@ $ ls
         cwd = cwd.parent
 
     root_size = root.total_file_size
+    total_space = 70_000_000
+    required_space = 30_000_000
+    unused_space = total_space - root_size
+    requested_space = required_space - unused_space
 
     logger.info(f"root: {root_size}")
 
