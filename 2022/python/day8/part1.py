@@ -17,17 +17,53 @@ assert INPUT_FILE.exists(), "Input file not present."
 
 @logger.catch
 def main() -> None:
-    data = INPUT_FILE.read_text()
+    data = INPUT_FILE.read_text().splitlines()
 
-    data = r"""30373
-25512
-65332
-33549
-35390""".splitlines()
+#     data = r"""30373
+# 25512
+# 65332
+# 33549
+# 35390""".splitlines()
 
-    data = [[int(k) for k in j] for j in data]
+    data = [[int(c) for c in r] for r in data]
 
-    logger.debug(data)
+    mask = [[0] * len(r) for r in data]
+
+    for col in range(1, len(data[0]) - 1):
+        current_highest = data[0][col]
+        for row in range(1, len(data) - 1):
+            if data[row][col] > current_highest:
+                current_highest = data[row][col]
+                if mask[row][col] == 0:
+                    mask[row][col] = 1
+
+    for row in range(1, len(data) - 1):
+        current_highest = data[row][0]
+        for col in range(1, len(data[0]) - 1):
+            if data[row][col] > current_highest:
+                current_highest = data[row][col]
+                if mask[row][col] == 0:
+                    mask[row][col] = 1
+
+    for col in range(1, len(data[0]) - 1):
+        current_highest = data[len(data) - 1][col]
+        for row in range(len(data) - 2, 0, -1):
+            if data[row][col] > current_highest:
+                current_highest = data[row][col]
+                if mask[row][col] == 0:
+                    mask[row][col] = 1
+
+    for row in range(1, len(data) - 1):
+        current_highest = data[row][len(data[0]) - 1]
+        for col in range(len(data[0]) - 2, 0, -1):
+            if data[row][col] > current_highest:
+                current_highest = data[row][col]
+                if mask[row][col] == 0:
+                    mask[row][col] = 1
+
+    num_visible_trees = sum(map(sum, mask)) + len(data) * 2 + len(data[0]) * 2 - 4
+
+    logger.debug(f"{num_visible_trees=}")
 
 
 if __name__ == "__main__":
