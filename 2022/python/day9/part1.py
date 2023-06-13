@@ -43,7 +43,7 @@ def main() -> None:
 # L 5
 # R 2""".splitlines()
 
-    tail_path: list[tuple(int, int)] = []
+    tail_path: list[tuple[int, int]] = []
     tail_path.append((0, 0))
 
     tail = head = (0, 0)
