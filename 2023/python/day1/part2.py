@@ -40,16 +40,51 @@ def is_digit(c: str) -> bool:
     return ord("0") <= ord(c) <= ord("9")
 
 
+def forward_search(ss: str) -> int:
+    lss = len(ss)
+    for ii in range(0, len(DIGIT_LETTERS)):
+        s = DIGIT_LETTERS[ii]
+        ls = len(s)
+        if ls > lss:
+            break
+        for i in range(0, len(ss) - ls):
+            if is_digit(ss[i]):
+                return int(ss[i])
+            if ss[i : i + ls] == s:
+                return ii + 1
+        for i in range(len(ss) - ls, len(ss)):
+            if is_digit(ss[i]):
+                return int(ss[i])
+    for c in ss:
+        if is_digit(c):
+            return int(c)
+    raise ValueError("Value not found.")
+
+
+def backward_search(ss: str) -> int:
+    lss = len(ss)
+    for ii in range(0, len(DIGIT_LETTERS)):
+        s = DIGIT_LETTERS[ii]
+        ls = len(s)
+        if ls > lss:
+            break
+        for i in range(len(ss) - ls, -1, -1):
+            if is_digit(ss[i]):
+                return int(ss[i])
+            if ss[i : i + ls] == s:
+                return ii + 1
+        for i in range(len(ss) - 1, len(ss) - ls):
+            if is_digit(ss[i]):
+                return int(ss[i])
+    for c in reversed(ss):
+        if is_digit(c):
+            return int(c)
+    raise ValueError("Value not found.")
+
+
 def get_cal_value_line(line: str) -> int:
-    first_digit = last_digit = 0
-    for c in line:
-        if is_digit(c):
-            first_digit = int(c)
-            break
-    for c in reversed(line):
-        if is_digit(c):
-            last_digit = int(c)
-            break
+    first_digit = forward_search(line)
+    last_digit = backward_search(line)
     return first_digit * 10 + last_digit
 
 
@@ -63,7 +98,7 @@ abcone2threexyz
 xtwone3four
 4nineeightseven2
 zoneight234
-7pqrstsixteen"""
+7pqrstsixteen""".splitlines()
 
     cal_values = map(get_cal_value_line, data)
     result = reduce(add, cal_values)
