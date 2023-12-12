@@ -7,16 +7,14 @@ from functools import reduce, wraps
 from pathlib import Path
 
 from loguru import logger
-from typing import Callable
+from typing import Any, Callable
 
 from operator import add
 
-logger.add("log.log")
 
-
-def time_this(func: Callable[..., None]):
+def time_this(func: Callable[..., Any]):
     @wraps(func)
-    def timer_wrapper(*args: None, **kwargs: None):
+    def timer_wrapper(*args: ..., **kwargs: ...):
         t_start = time.perf_counter()
         result = func(*args, **kwargs)
         t_finish = time.perf_counter()
@@ -40,45 +38,31 @@ def is_digit(c: str) -> bool:
     return ord("0") <= ord(c) <= ord("9")
 
 
-def forward_search(ss: str) -> int:
-    lss = len(ss)
-    for ii in range(0, len(DIGIT_LETTERS)):
-        s = DIGIT_LETTERS[ii]
-        ls = len(s)
-        if ls > lss:
-            break
-        for i in range(0, len(ss) - ls):
-            if is_digit(ss[i]):
-                return int(ss[i])
-            if ss[i : i + ls] == s:
-                return ii + 1
-        for i in range(len(ss) - ls, len(ss)):
-            if is_digit(ss[i]):
-                return int(ss[i])
-    for c in ss:
-        if is_digit(c):
-            return int(c)
+def forward_search(s: str) -> int:
+    for i in range(0, len(s)):
+        if is_digit(s[i]):
+            return int(s[i])
+        for j in range(0, len(DIGIT_LETTERS)):
+            d = DIGIT_LETTERS[j]
+            ld = len(d)
+            if len(s) - i < ld:
+                continue
+            if s[i : i + ld] == d:
+                return j + 1
     raise ValueError("Value not found.")
 
 
-def backward_search(ss: str) -> int:
-    lss = len(ss)
-    for ii in range(0, len(DIGIT_LETTERS)):
-        s = DIGIT_LETTERS[ii]
-        ls = len(s)
-        if ls > lss:
-            break
-        for i in range(len(ss) - ls, -1, -1):
-            if is_digit(ss[i]):
-                return int(ss[i])
-            if ss[i : i + ls] == s:
-                return ii + 1
-        for i in range(len(ss) - 1, len(ss) - ls):
-            if is_digit(ss[i]):
-                return int(ss[i])
-    for c in reversed(ss):
-        if is_digit(c):
-            return int(c)
+def backward_search(s: str) -> int:
+    for i in range(len(s) - 1, -1, -1):
+        if is_digit(s[i]):
+            return int(s[i])
+        for j in range(0, len(DIGIT_LETTERS)):
+            d = DIGIT_LETTERS[j]
+            ld = len(d)
+            if len(s) - i < ld:
+                continue
+            if s[i : i + ld] == d:
+                return j + 1
     raise ValueError("Value not found.")
 
 
@@ -88,21 +72,18 @@ def get_cal_value_line(line: str) -> int:
     return first_digit * 10 + last_digit
 
 
-@logger.catch
 @time_this
-def main() -> None:
-    data = INPUT_FILE.read_text().splitlines()
-    data = """two1nine
-eightwothree
-abcone2threexyz
-xtwone3four
-4nineeightseven2
-zoneight234
-7pqrstsixteen""".splitlines()
-
+def solve(data: list[str]) -> int:
     cal_values = map(get_cal_value_line, data)
     result = reduce(add, cal_values)
+    return result
 
+
+@logger.catch
+def main() -> None:
+    data = INPUT_FILE.read_text().splitlines()
+
+    result = solve(data)
     logger.info(f"{result=}")
 
 
