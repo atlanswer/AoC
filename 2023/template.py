@@ -7,14 +7,14 @@ from functools import wraps
 from pathlib import Path
 
 from loguru import logger
-from typing import Callable
+from typing import Any, Callable
 
-logger.add("log.log")
+# logger.add("log.log")
 
 
-def time_this(func: Callable[..., None]):
+def time_this(func: Callable[..., Any]):
     @wraps(func)
-    def timer_wrapper(*args: None, **kwargs: None):
+    def timer_wrapper(*args: ..., **kwargs: ...):
         t_start = time.perf_counter()
         result = func(*args, **kwargs)
         t_finish = time.perf_counter()
