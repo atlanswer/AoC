@@ -58,6 +58,7 @@ def map_src_to_dest(src: int, map_list: list[tuple[int, int, int]]):
     return src
 
 
+@time_this
 def solve(data: list[str]) -> int:
     seeds = get_seeds(data[0])
     map_lists: list[list[tuple[int, int, int]]] = []

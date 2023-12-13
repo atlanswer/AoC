@@ -85,6 +85,7 @@ def map_src_to_dest(
     return dest
 
 
+@time_this
 def solve(data: list[str]) -> int:
     seeds = get_seeds(data[0])
     map_lists: list[list[tuple[int, int, int]]] = []
@@ -108,7 +109,6 @@ def solve(data: list[str]) -> int:
         dest = src
         for map_fn in map_fns:
             dest = map_fn(dest)
-            logger.debug(f"{dest=}")
         return dest
 
     locations = map_all(seeds)
