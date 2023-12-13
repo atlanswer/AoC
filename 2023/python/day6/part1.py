@@ -3,11 +3,13 @@ Solving: https://adventofcode.com/2023/day/6
 """
 
 import time
-from functools import wraps
+from functools import reduce, wraps
+from math import ceil, floor, sqrt
+from operator import mul
 from pathlib import Path
+from typing import Any, Callable, Iterable
 
 from loguru import logger
-from typing import Any, Callable, Iterable
 
 
 def time_this(func: Callable[..., Any]):
@@ -41,18 +43,29 @@ def get_records(data: list[str]) -> Iterable[tuple[int, int]]:
     return zip(times, distances)
 
 
+def get_num_ways(race: tuple[int, int]) -> int:
+    t, r = race
+
+    t1 = (t - sqrt(t**2 - 4 * r)) / 2
+    t1 = ceil(t1) if ceil(t1) != floor(t1) else ceil(t1) + 1
+    t2 = (t + sqrt(t**2 - 4 * r)) / 2
+    t2 = floor(t2) if floor(t2) != ceil(t2) else floor(t2) - 1
+
+    logger.debug(f"{t1=} | {t2=}")
+
+    return t2 - t1 + 1
+
+
 @time_this
 def solve(data: list[str]) -> int:
-    ...
+    records = get_records(data)
+
+    return reduce(mul, map(get_num_ways, records))
 
 
 @logger.catch
 def main() -> None:
-    # data = INPUT_FILE.read_text().splitlines()
-    data = str(
-        """Time:      7  15   30
-Distance:  9  40  200"""
-    ).splitlines()
+    data = INPUT_FILE.read_text().splitlines()
 
     result = solve(data)
 
