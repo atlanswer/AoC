@@ -1,5 +1,5 @@
 """
-Solving: https://adventofcode.com/2023/day/6
+Solving: https://adventofcode.com/2023/day/6#part2
 """
 
 import time
