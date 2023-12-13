@@ -19,7 +19,9 @@ def time_this(func):
         t_finish = time.perf_counter()
         logger.info(f"Execution time: {t_finish - t_start:.4f} seconds.")
         return result
+
     return timer_wrapper
+
 
 AOC_DAY = Path(__file__).parent.name
 INPUT_DIR = Path(__file__).parents[2] / "input"

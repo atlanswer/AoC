@@ -19,7 +19,9 @@ def time_this(func):
         t_finish = time.perf_counter()
         logger.info(f"Execution time: {t_finish - t_start:.4f} seconds.")
         return result
+
     return timer_wrapper
+
 
 AOC_DAY = Path(__file__).parent.name
 INPUT_DIR = Path(__file__).parents[2] / "input"
@@ -31,7 +33,7 @@ assert INPUT_FILE.exists(), "Input file not present."
 @time_this
 def main() -> None:
     data = INPUT_FILE.read_text()
-    
+
     data = r"""Sabqponm
 abcryxxl
 accszExk

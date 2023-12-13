@@ -31,12 +31,18 @@ INPUT_FILE = INPUT_DIR / AOC_DAY / "input.txt"
 assert INPUT_FILE.exists(), "Input file not present."
 
 
-@logger.catch
 @time_this
-def main() -> None:
-    data = INPUT_FILE.read_text()
+def solve(data: list[str]) -> int:
+    ...
 
-    logger.debug(data)
+
+@logger.catch
+def main() -> None:
+    data = INPUT_FILE.read_text().splitlines()
+
+    result = solve(data)
+
+    logger.debug(f"{result=}")
 
 
 if __name__ == "__main__":
