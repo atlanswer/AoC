@@ -5,14 +5,16 @@ Solving: https://adventofcode.com/2023/day/1
 import time
 from functools import wraps
 from pathlib import Path
+from typing import Callable, TypeVar
 
 from loguru import logger
-from typing import Any, Callable
+
+ReturnType = TypeVar("ReturnType")
 
 # logger.add("log.log")
 
 
-def time_this(func: Callable[..., Any]):
+def time_this(func: Callable[..., ReturnType]) -> Callable[..., ReturnType]:
     @wraps(func)
     def timer_wrapper(*args: ..., **kwargs: ...):
         t_start = time.perf_counter()
