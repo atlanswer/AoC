@@ -53,6 +53,26 @@ def get_patterns(data: list[str]) -> list[list[str]]:
     return patterns
 
 
+def get_row_diff(pattern: list[str], i: int, j: int) -> int:
+    count_diff = 0
+
+    for y in range(len(pattern[0])):
+        if pattern[i][y] != pattern[j][y]:
+            count_diff += 1
+
+    return count_diff
+
+
+def get_col_diff(pattern: list[str], i: int, j: int) -> int:
+    count_diff = 0
+
+    for x in range(len(pattern)):
+        if pattern[x][i] != pattern[x][j]:
+            count_diff += 1
+
+    return count_diff
+
+
 def find_horizontal_mirror(pattern: list[str]) -> int:
     for i in range(len(pattern) - 1):
         if pattern[i + 1] == pattern[i]:
@@ -67,13 +87,6 @@ def find_horizontal_mirror(pattern: list[str]) -> int:
             if is_mirror:
                 return i
     return -1
-
-
-def compare_col(pattern: list[str], i: int, j: int) -> bool:
-    for x in range(len(pattern)):
-        if pattern[x][i] != pattern[x][j]:
-            return False
-    return True
 
 
 def find_vertical_mirror(pattern: list[str]) -> int:
@@ -98,7 +111,7 @@ def solve(data: list[str]) -> int:
 
     vertical_mirrors = map(find_vertical_mirror, patterns)
     horizontal_mirrors = map(find_horizontal_mirror, patterns)
-    
+
     # logger.debug(f"v={list(vertical_mirrors)}")
     # logger.debug(f"h={list(horizontal_mirrors)}")
 
@@ -107,30 +120,30 @@ def solve(data: list[str]) -> int:
     for v, h in zip(vertical_mirrors, horizontal_mirrors):
         result += v + 1 if v != -1 else 0
         result += 100 * (h + 1) if h != -1 else 0
-    
+
     return result
 
 
 @logger.catch
 def main() -> None:
     data = INPUT_FILE.read_text().splitlines()
-#     data = str(
-#         """#.##..##.
-# ..#.##.#.
-# ##......#
-# ##......#
-# ..#.##.#.
-# ..##..##.
-# #.#.##.#.
+    #     data = str(
+    #         """#.##..##.
+    # ..#.##.#.
+    # ##......#
+    # ##......#
+    # ..#.##.#.
+    # ..##..##.
+    # #.#.##.#.
 
-# #...##..#
-# #....#..#
-# ..##..###
-# #####.##.
-# #####.##.
-# ..##..###
-# #....#..#"""
-#     ).splitlines()
+    # #...##..#
+    # #....#..#
+    # ..##..###
+    # #####.##.
+    # #####.##.
+    # ..##..###
+    # #....#..#"""
+    #     ).splitlines()
 
     result = solve(data)
 
