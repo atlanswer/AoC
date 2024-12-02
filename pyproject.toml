@@ -1,0 +1,11 @@
+[project]
+name = "aoc"
+version = "2024.0.1"
+description = "Advent of Code solution by Atlanswer"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "ipykernel>=6.29.5",
+    "ipython>=8.30.0",
+    "rich>=13.9.4",
+]
