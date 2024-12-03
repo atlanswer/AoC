@@ -1,12 +1,12 @@
 """
-Solving: https://adventofcode.com/2024/day/1#part2
+Solving: https://adventofcode.com/2024/day/2
 """
 
 import time
 import logging
 from functools import wraps
 from pathlib import Path
-from typing import Callable, TypeVar
+from typing import Callable, Literal, TypeVar
 
 from rich.logging import RichHandler
 
@@ -26,18 +26,44 @@ def time_this(func: Callable[..., ReturnType]) -> Callable[..., ReturnType]:
     return timer_wrapper
 
 
+Trend = Literal["increasing", "decreasing", "unknown"]
+
+
+def check_safe(
+    levels: list[int],
+    idx: int = 1,
+    trend: Trend = "unknown",
+) -> bool:
+    if idx >= len(levels):
+        return True
+
+    diff = levels[idx] - levels[idx - 1]
+
+    if abs(diff) < 1 or abs(diff) > 3:
+        return False
+
+    cur_trend: Trend = "unknown"
+
+    if diff > 0:
+        cur_trend = "increasing"
+    else:
+        cur_trend = "decreasing"
+
+    if cur_trend != trend and trend != "unknown":
+        return False
+
+    return check_safe(levels, idx + 1, cur_trend)
+
+
 @time_this
 def solve(data: list[str]) -> int:
-    left: list[int] = []
-    right: dict[int, int] = {}
+    res = 0
 
     for line in data:
-        ln, rn = line.split()
-        ln, rn = int(ln), int(rn)
-        left.append(ln)
-        right[rn] = right[rn] + 1 if rn in right else 1
+        levels = [int(i) for i in line.split()]
 
-    res = sum([ln * right[ln] if ln in right else 0 for ln in left])
+        if check_safe(levels):
+            res += 1
 
     return res
 
@@ -51,7 +77,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    AOC_YEAR = 2024
     AOC_DAY = Path(__file__).parent.name
     INPUT_DIR = Path(__file__).parents[2] / "input"
     INPUT_FILE = INPUT_DIR / AOC_DAY / "input.txt"
