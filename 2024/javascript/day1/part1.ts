@@ -43,5 +43,5 @@ for (let i = 0; i < inputText.length; i += 1) {
     res += Math.abs(left[i] - right[i]);
 }
 
-console.log(`Result: ${res}.`);
+console.log(`Result: ${res}`);
 
