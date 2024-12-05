@@ -1,5 +1,5 @@
 """
-Solving: https://adventofcode.com/2024/day/4
+Solving: https://adventofcode.com/2024/day/4#part2
 """
 
 import time
@@ -27,59 +27,22 @@ def time_this(func: Callable[..., ReturnType]) -> Callable[..., ReturnType]:
 
 
 def search_xmas(data: list[str], r: int, c: int) -> int:
-    count = 0
+    target = list("MAS")
 
-    target = list("XMAS")
+    if r - 1 < 0 or c - 1 < 0 or r + 1 >= len(data) or c + 1 >= len(data[0]):
+        return 0
 
-    # up left
-    if r - 3 >= 0 and c - 3 >= 0:
-        s = [data[r - i][c - i] for i in range(4)]
-        if s == target:
-            count += 1
+    diag1 = [data[r + i][c + i] for i in range(-1, 2)]
 
-    # up
-    if r - 3 >= 0:
-        s = [data[r - i][c] for i in range(4)]
-        if s == target:
-            count += 1
+    if diag1 != target and diag1 != target[::-1]:
+        return 0
 
-    # up right
-    if r - 3 >= 0 and c + 3 < len(data[0]):
-        s = [data[r - i][c + i] for i in range(4)]
-        if s == target:
-            count += 1
+    diag2 = [data[r + i][c - i] for i in range(-1, 2)]
 
-    # right
-    if c + 3 < len(data[0]):
-        s = [data[r][c + i] for i in range(4)]
-        if s == target:
-            count += 1
+    if diag2 != target and diag2 != target[::-1]:
+        return 0
 
-    # down right
-    if r + 3 < len(data) and c + 3 < len(data[0]):
-        s = [data[r + i][c + i] for i in range(4)]
-        if s == target:
-            count += 1
-
-    # down
-    if r + 3 < len(data):
-        s = [data[r + i][c] for i in range(4)]
-        if s == target:
-            count += 1
-
-    # down left
-    if r + 3 < len(data) and c - 3 >= 0:
-        s = [data[r + i][c - i] for i in range(4)]
-        if s == target:
-            count += 1
-
-    # left
-    if c - 3 >= 0:
-        s = [data[r][c - i] for i in range(4)]
-        if s == target:
-            count += 1
-
-    return count
+    return 1
 
 
 @time_this
@@ -88,7 +51,7 @@ def solve(data: list[str]) -> int:
 
     for r in range(len(data)):
         for c in range(len(data[0])):
-            if data[r][c] != "X":
+            if data[r][c] != "A":
                 continue
             res += search_xmas(data, r, c)
 
