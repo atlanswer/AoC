@@ -6,5 +6,10 @@ My attempt at Advent of Code
 
 ```shell
 # Python
-uv run python main.py
+uv sync
+uv run <AOC_YEAR>/python/day<n>/part<n>.py
+
+# TypeScript
+bun i
+bun <AOC_YEAR>/javascript/day<n>/part<n>.ts
 ```
