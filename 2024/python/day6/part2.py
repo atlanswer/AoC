@@ -52,28 +52,28 @@ def solve(data: str) -> int:
                 if r_guard - 1 >= 0 and data[r_guard - 1][c_guard] == "#":
                     direction = "Right"
                     continue
-                data[r_guard][c_guard] = "X"
+                data[r_guard][c_guard] = "^"
                 r_guard -= 1
             case "Right":
                 # logger.debug("Go RIGHT")
                 if c_guard + 1 < len(data[0]) and data[r_guard][c_guard + 1] == "#":
                     direction = "Down"
                     continue
-                data[r_guard][c_guard] = "X"
+                data[r_guard][c_guard] = ">"
                 c_guard += 1
             case "Down":
                 # logger.debug("Go DOWN")
                 if r_guard + 1 < len(data) and data[r_guard + 1][c_guard] == "#":
                     direction = "Left"
                     continue
-                data[r_guard][c_guard] = "X"
+                data[r_guard][c_guard] = "v"
                 r_guard += 1
             case "Left":
                 # logger.debug("Go LEFT")
                 if c_guard - 1 >= 0 and data[r_guard][c_guard - 1] == "#":
                     direction = "Up"
                     continue
-                data[r_guard][c_guard] = "X"
+                data[r_guard][c_guard] = "<"
                 c_guard -= 1
 
         _ = input("Enter to progress")
