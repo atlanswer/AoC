@@ -1,11 +1,16 @@
 [project]
 name = "aoc"
-version = "2024.1.0"
+version = "2025.0.0"
 description = "Advent of Code solution by Atlanswer"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
-dependencies = [ "ipykernel>=6.30", "ipython>=9.6", "rich>=14.1" ]
+dependencies = [ "ipykernel>=7.1", "ipython>=9.7", "rich>=14.2" ]
+
+[dependency-groups]
+dev = [
+    "ty>=0.0.1a28",
+]
