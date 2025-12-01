@@ -40,9 +40,8 @@ L82
 
         end_at_0 = True if dial == 0 else False
 
-        if cross == 0:
-            if end_at_0:
-                passwd += 1
+        if cross == 0 and end_at_0:
+            passwd += 1
         if cross > 0:
             passwd += cross
         if cross < 0:
