@@ -1,4 +1,4 @@
-"""Python utilities"""
+"""Python utilities for AoC"""
 
 __version__ = "2025.12.1"
 
@@ -49,8 +49,6 @@ def get_input(cur_file: str) -> str:
     """
 
     path = Path(cur_file)
-
-    log.debug(path)
     AOC_DAY = path.parent.name
     INPUT_FILE = path.parents[2] / "input" / AOC_DAY / "input.txt"
     assert INPUT_FILE.exists(), f"Input file ({INPUT_FILE}) not found."

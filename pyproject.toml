@@ -15,7 +15,4 @@ dependencies = [ "ipykernel>=7.1", "ipython>=9.7", "rich>=14.2" ]
 urls.Home = "https://github.com/atlanswer/AoC"
 
 [dependency-groups]
-dev = [
-  "flit>=3.12",
-  "ty>=0.0.1a28",
-]
+dev = [ "flit>=3.12", "ty>=0.0.1a29" ]
