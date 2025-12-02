@@ -13,3 +13,7 @@ __pycache__/
 # Environments
 .venv
 
+# Artifacts
+*.exe
+*.pdb
+
