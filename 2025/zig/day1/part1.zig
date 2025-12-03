@@ -16,6 +16,7 @@ const allocator = arena.allocator();
 
 pub fn main() !void {
     defer arena.deinit();
+
     // const input =
     //     \\L68
     //     \\L30
@@ -28,22 +29,13 @@ pub fn main() !void {
     //     \\R14
     //     \\L82
     // ;
+    const input = try getInput();
     // print("{s}\n", .{input});
-    var input: [1024 * 20]u8 = undefined;
-    // const input = try getInput();
-
-    try getInput(&input);
-
-    print("{s}\n", .{input});
-
-    {
-        return;
-    }
 
     var dial: i32 = 50;
     var passwd: u32 = 0;
 
-    var line_it = std.mem.splitScalar(u8, input, '\n');
+    var line_it = std.mem.tokenizeScalar(u8, input, '\n');
     while (line_it.next()) |line| {
         const direction: u8 = line[0];
         const distance = try std.fmt.parseInt(i32, line[1..], 10);
@@ -53,13 +45,13 @@ pub fn main() !void {
 
         if (dial == 0) passwd += 1;
 
-        print("{c}: {d} | {d}, {d}\n", .{ direction, distance, dial, passwd });
+        // print("{c}: {d} | {d}, {d}\n", .{ direction, distance, dial, passwd });
     }
 
     print("passwd: {d}\n", .{passwd});
 }
 
-fn getInput(buffer: []u8) !void {
+fn getInput() ![]u8 {
     const cwd = try std.process.getCwdAlloc(allocator);
     const AOC_DAY = std.fs.path.basename(cwd);
     const input_file_path = try std.fs.path.resolve(allocator, &.{ cwd, "..", "..", "input", AOC_DAY, "input.txt" });
@@ -67,6 +59,10 @@ fn getInput(buffer: []u8) !void {
     const input_file = try std.fs.openFileAbsolute(input_file_path, .{});
     defer input_file.close();
 
-    const num = try input_file.read(buffer);
-    print("{d} bytes read.\n", .{num});
+    var threaded = std.Io.Threaded.init(allocator);
+    defer threaded.deinit();
+
+    var reader = input_file.reader(threaded.io(), try allocator.alloc(u8, 1024));
+
+    return try reader.interface.allocRemaining(allocator, .unlimited);
 }
