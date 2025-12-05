@@ -12,7 +12,7 @@ test "Execution time" {
 var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
 const allocator = arena.allocator();
 
-const Grid = std.ArrayList([]const u8);
+const Grid = std.ArrayList([]u8);
 const Coordinate = struct { r: usize, c: usize };
 
 pub fn main() !void {
@@ -37,22 +37,33 @@ pub fn main() !void {
     var grid = Grid.empty;
 
     while (input_it.next()) |row| {
-        try grid.append(allocator, row);
+        const row_slice = try allocator.alloc(u8, row.len);
+        @memcpy(row_slice, row);
+        try grid.append(allocator, row_slice);
     }
-    // print("grid: {any}\n", .{grid});
 
     var res: usize = 0;
 
-    for (0..grid.items.len) |r| {
-        for (0..grid.items[0].len) |c| {
-            if (grid.items[r][c] != '@') continue;
+    var removed: usize = 1;
+    while (removed > 0) {
+        removed = 0;
+        for (0..grid.items.len) |r| {
+            for (0..grid.items[0].len) |c| {
+                if (grid.items[r][c] != '@') continue;
 
-            const count = try getAdjacentRolls(grid, Coordinate{ .r = r, .c = c });
-            if (count < 4) res += 1;
+                const count = try getAdjacentRolls(grid, Coordinate{ .r = r, .c = c });
+
+                if (count < 4) {
+                    grid.items[r][c] = '.';
+                    removed += 1;
+                }
+            }
         }
+        // print("removed: {d}\n", .{removed});
+        res += removed;
     }
 
-    print("accessable rolls: {d}\n", .{res});
+    print("removed rolls total: {d}\n", .{res});
 }
 
 fn getAdjacentRolls(grid: Grid, coordinate: Coordinate) std.mem.Allocator.Error!usize {
