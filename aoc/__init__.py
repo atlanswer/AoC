@@ -1,6 +1,6 @@
 """Python utilities for AoC"""
 
-__version__ = "2025.12.1"
+__version__ = "2025.12.5"
 
 import logging
 import time
