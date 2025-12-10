@@ -15,7 +15,10 @@ test "Execution time" {
 var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
 const allocator = arena.allocator();
 
-const connection: usize = 10;
+const Position = packed struct { x: usize, y: usize, z: usize };
+const Positions = std.ArrayList(Position);
+const Distance = struct { distance: usize, pa: *const Position, pb: *const Position };
+const Distances = std.ArrayList(Distance);
 
 pub fn main() !void {
     defer arena.deinit();
@@ -46,6 +49,8 @@ pub fn main() !void {
 
     var input_it = std.mem.splitScalar(u8, std.mem.trim(u8, input, "\n"), '\n');
 
+    var positions: Positions = .empty;
+
     while (input_it.next()) |line| : ({}) {
         // print("line: {s}\n", .{line});
         var coordinate_it = std.mem.tokenizeScalar(u8, line, ',');
@@ -54,41 +59,41 @@ pub fn main() !void {
         const y = try std.fmt.parseInt(usize, coordinate_it.next().?, 10);
         const z = try std.fmt.parseInt(usize, coordinate_it.next().?, 10);
 
-        // try positions.append(allocator, Position{ .x = x, .y = y, .z = z });
+        const position: Position = .{ .x = x, .y = y, .z = z };
+        try positions.append(allocator, position);
     }
 
-    // var distance_list = try DistanceList.initCapacity(
-    //     allocator,
-    //     positions.items.len * (positions.items.len - 1) / 2,
-    // );
+    var distances = try Distances.initCapacity(
+        allocator,
+        positions.items.len * (positions.items.len - 1) / 2,
+    );
 
-    // for (0..positions.items.len) |i| {
-    //     for (i + 1..positions.items.len) |j| {
-    //         const pa = positions.items[i];
-    //         const pb = positions.items[j];
-    //         const distance = getDistance(pa, pb);
+    for (0..positions.items.len) |i| {
+        for (positions.items[i + 1 ..]) |pb| {
+            const pa = positions.items[i];
 
-    //         distance_list.appendAssumeCapacity(.{
-    //             .pa = pa,
-    //             .pb = pb,
-    //             .distance = distance,
-    //         });
-    //     }
-    // }
-    // print("connections: {d}\n", .{distance_list.items.len});
+            distances.appendAssumeCapacity(.{
+                .pa = &pa,
+                .pb = &pb,
+                .distance = getDistance(pa, pb),
+            });
+        }
+    }
 
-    // const asc = struct {
-    //     fn inner(_: void, a: DistanceRecord, b: DistanceRecord) bool {
-    //         return a.distance < b.distance;
-    //     }
-    // }.inner;
+    const asc = struct {
+        fn inner(_: void, a: Distance, b: Distance) bool {
+            return a.distance < b.distance;
+        }
+    }.inner;
 
-    // std.mem.sortUnstable(DistanceRecord, distance_list.items, {}, asc);
+    std.mem.sortUnstable(Distance, distances.items, {}, asc);
 
-    // print("distance_list:\n", .{});
-    // for (0..connection) |idx| {
-    //     print("{any}\n", .{distance_list.items[idx]});
-    // }
+    const connection: usize = 10;
+
+    print("distance_list:\n", .{});
+    for (0..connection) |idx| {
+        print("{any}\n", .{distances.items[idx]});
+    }
 
     // for (0..connection) |idx| {
     //     const record = distance_list.items[idx];
@@ -149,12 +154,12 @@ pub fn main() !void {
     // print("res: {d}\n", .{res});
 }
 
-// fn getDistance(pa: Position, pb: Position) usize {
-//     const x2 = std.math.pow(usize, if (pa.x > pb.x) pa.x - pb.x else pb.x - pa.x, 2);
-//     const y2 = std.math.pow(usize, if (pa.y > pb.y) pa.y - pb.y else pb.y - pa.y, 2);
-//     const z2 = std.math.pow(usize, if (pa.z > pb.z) pa.z - pb.z else pb.z - pa.z, 2);
-//     return x2 + y2 + z2;
-// }
+fn getDistance(pa: Position, pb: Position) usize {
+    const x2 = std.math.pow(usize, if (pa.x > pb.x) pa.x - pb.x else pb.x - pa.x, 2);
+    const y2 = std.math.pow(usize, if (pa.y > pb.y) pa.y - pb.y else pb.y - pa.y, 2);
+    const z2 = std.math.pow(usize, if (pa.z > pb.z) pa.z - pb.z else pb.z - pa.z, 2);
+    return x2 + y2 + z2;
+}
 
 fn getInput() ![]u8 {
     const cwd = try std.process.getCwdAlloc(allocator);
