@@ -54,6 +54,7 @@ pub fn main() !void {
     var positions: Positions = .empty;
 
     while (input_it.next()) |line| : ({}) {
+        // print("line: {s}\n", .{line});
         var coordinate_it = std.mem.tokenizeScalar(u8, line, ',');
 
         const x = try std.fmt.parseInt(usize, coordinate_it.next().?, 10);
@@ -69,21 +70,11 @@ pub fn main() !void {
         positions.items.len * (positions.items.len - 1) / 2,
     );
 
-    const n_conn: usize = 1000;
-
-    var max_distance: usize = 0;
-
     for (0..positions.items.len) |i| {
         for (i + 1..positions.items.len) |j| {
             const pa: *const Position = &positions.items[i];
             const pb: *const Position = &positions.items[j];
             const distance = getDistance(pa.*, pb.*);
-
-            if (distances.items.len > n_conn) {
-                if (distance > max_distance) continue;
-            }
-
-            if (distance > max_distance) max_distance = distance;
 
             distances.appendAssumeCapacity(.{
                 .pa = pa,
@@ -92,8 +83,6 @@ pub fn main() !void {
             });
         }
     }
-
-    print("distances len: {d}\n", .{distances.items.len});
 
     const asc = struct {
         fn inner(_: void, a: Distance, b: Distance) bool {
@@ -105,7 +94,7 @@ pub fn main() !void {
 
     var circuits: Circuits = .empty;
 
-    for (distances.items[0..n_conn]) |distance| {
+    for (distances.items) |distance| {
         var pending_idxes = std.ArrayList(usize).empty;
 
         for (0..circuits.items.len) |idx| {
@@ -119,6 +108,7 @@ pub fn main() !void {
             try new_circuit.put(distance.pa, {});
             try new_circuit.put(distance.pb, {});
             try circuits.append(allocator, new_circuit);
+
             continue;
         }
 
@@ -135,22 +125,19 @@ pub fn main() !void {
 
         var idx: usize = pending_idxes.items.len - 1;
         while (idx >= 1) : (idx -= 1) _ = circuits.swapRemove(pending_idxes.items[idx]);
+
+        var n_connected: usize = 0;
+        for (circuits.items) |circuit| {
+            n_connected += circuit.count();
+        }
+        if (n_connected == positions.items.len) {
+            print("distance: {}\n", .{distance});
+
+            print("res: {}\n", .{distance.pa.x * distance.pb.x});
+
+            break;
+        }
     }
-
-    var circuit_sizes: std.ArrayList(usize) = .empty;
-    for (circuits.items) |circuit| {
-        try circuit_sizes.append(allocator, circuit.count());
-    }
-
-    std.mem.sortUnstable(usize, circuit_sizes.items, {}, std.sort.desc(usize));
-    // print("sizes: {any}\n", .{circuit_sizes});
-
-    var res: usize = 1;
-    for (0..3) |i| {
-        res *= circuit_sizes.items[i];
-    }
-
-    print("res: {d}\n", .{res});
 }
 
 fn getDistance(pa: Position, pb: Position) usize {
