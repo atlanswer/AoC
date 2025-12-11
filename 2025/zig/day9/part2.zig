@@ -22,23 +22,25 @@ const Grid = std.ArrayList(std.ArrayList(u8));
 pub fn main() !void {
     defer arena.deinit();
 
-    const input =
-        \\7,1
-        \\11,1
-        \\11,7
-        \\9,7
-        \\9,5
-        \\2,5
-        \\2,3
-        \\7,3
-    ;
-    // const input = try getInput();
+    // const input =
+    //     \\7,1
+    //     \\11,1
+    //     \\11,7
+    //     \\9,7
+    //     \\9,5
+    //     \\2,5
+    //     \\2,3
+    //     \\7,3
+    // ;
+    const input = try getInput();
 
     var input_it = std.mem.splitScalar(u8, std.mem.trim(u8, input, "\n"), '\n');
 
     var positions: Positions = .empty;
     var width: usize = 0;
     var height: usize = 0;
+
+    var cnt: usize = 0;
 
     while (input_it.next()) |line| : ({}) {
         var coordinate_it = std.mem.tokenizeScalar(u8, line, ',');
@@ -51,20 +53,12 @@ pub fn main() !void {
 
         if (x > height) height = x + 1;
         if (y > width) width = y + 1;
+
+        cnt += 1;
     }
 
-    var grid = try Grid.initCapacity(allocator, height);
-    for (0..height) |_| {
-        var row = try std.ArrayList(u8).initCapacity(allocator, width);
-        row.appendNTimesAssumeCapacity('.', width);
-        try grid.append(allocator, row);
-    }
-
-    for (positions.items) |p| {
-        grid.items[p.x].items[p.y] = '#';
-    }
-
-    printGrid(&grid);
+    print("Grid width: {}, height: {}\n", .{ width, height });
+    print("Line count: {}\n", .{cnt});
 
     // var max_area: usize = 0;
     // var count: usize = 0;
@@ -75,16 +69,6 @@ fn getArea(pa: Position, pb: Position) usize {
     const dx = if (pa.x > pb.x) pa.x - pb.x + 1 else pb.x - pa.x + 1;
     const dy = if (pa.y > pb.y) pa.y - pb.y + 1 else pb.y - pa.y + 1;
     return dx * dy;
-}
-
-fn printGrid(grid: *const Grid) void {
-    print("Grid:\n", .{});
-    for (grid.items) |row| {
-        for (row.items) |c| {
-            print("{c}", .{c});
-        }
-        print("\n", .{});
-    }
 }
 
 fn getInput() ![]u8 {
