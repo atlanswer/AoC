@@ -15,9 +15,13 @@ test "Execution time" {
 var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
 const allocator = arena.allocator();
 
-const Position = packed struct { x: usize, y: usize };
+const Position = packed struct { r: usize, c: usize };
 const Positions = std.ArrayList(Position);
 const Grid = std.ArrayList(std.ArrayList(u8));
+const HLine = struct { r: usize, cs: usize, ce: usize };
+const HLines = std.ArrayList(HLine);
+const VLine = struct { c: usize, rs: usize, re: usize };
+const VLines = std.ArrayList(VLine);
 
 pub fn main() !void {
     defer arena.deinit();
@@ -40,34 +44,83 @@ pub fn main() !void {
     var width: usize = 0;
     var height: usize = 0;
 
-    var cnt: usize = 0;
+    var line_count: usize = 0;
+    var horizontal_lines = HLines.empty;
+    var vertical_lines = VLines.empty;
 
     while (input_it.next()) |line| : ({}) {
         var coordinate_it = std.mem.tokenizeScalar(u8, line, ',');
 
-        const x = try std.fmt.parseInt(usize, coordinate_it.next().?, 10);
-        const y = try std.fmt.parseInt(usize, coordinate_it.next().?, 10);
+        const r = try std.fmt.parseInt(usize, coordinate_it.next().?, 10);
+        const c = try std.fmt.parseInt(usize, coordinate_it.next().?, 10);
 
-        const position: Position = .{ .x = x, .y = y };
+        const position: Position = .{ .r = r, .c = c };
+
+        if (r > height) height = r + 1;
+        if (c > width) width = c + 1;
+
+        if (positions.items.len > 0) {
+            const last_position = positions.getLast();
+
+            if (position.r == last_position.r) {
+                const cs, const ce = if (position.c < last_position.c)
+                    .{ position.c, last_position.c }
+                else
+                    .{ last_position.c, last_position.c };
+                try horizontal_lines.append(allocator, .{ .r = position.r, .cs = cs, .ce = ce });
+            }
+
+            if (position.c == last_position.c) {
+                const rs, const re = if (position.r < last_position.r)
+                    .{ position.r, last_position.r }
+                else
+                    .{ last_position.r, position.r };
+                try vertical_lines.append(allocator, .{ .c = position.c, .rs = rs, .re = re });
+            }
+        }
+
         try positions.append(allocator, position);
 
-        if (x > height) height = x + 1;
-        if (y > width) width = y + 1;
-
-        cnt += 1;
+        line_count += 1;
     }
 
     print("Grid width: {}, height: {}\n", .{ width, height });
-    print("Line count: {}\n", .{cnt});
+    print("Line count: {}\n", .{line_count});
 
-    // var max_area: usize = 0;
-    // var count: usize = 0;
+    std.mem.sortUnstable(HLine, horizontal_lines.items, {}, struct {
+        fn hLineLessThan(_: void, a: HLine, b: HLine) bool {
+            return a.r < b.r;
+        }
+    }.hLineLessThan);
 
+    std.mem.sortUnstable(VLine, vertical_lines.items, {}, struct {
+        fn vLineLessThan(_: void, a: VLine, b: VLine) bool {
+            return a.c < b.c;
+        }
+    }.vLineLessThan);
+
+    print("horizontal_lines:\n", .{});
+    for (horizontal_lines.items) |h| {
+        print("{}\n", .{h});
+    }
+    print("vertical_lines:\n", .{});
+    for (vertical_lines.items) |v| {
+        print("{}\n", .{v});
+    }
+
+    var max_area: usize = 0;
+
+    for (positions.items, 0..) |p1, i| {
+        for (positions.items[i + 1 ..]) |p2| {
+            const rs, const re = if (p1.r < p2.r) .{ p1.r, p2.r } else .{ p2.r, p1.r };
+            const cs, const ce = if (p1.c < p2.c) .{ p1.c, p2.c } else .{ p2.c, p1.c };
+        }
+    }
 }
 
 fn getArea(pa: Position, pb: Position) usize {
-    const dx = if (pa.x > pb.x) pa.x - pb.x + 1 else pb.x - pa.x + 1;
-    const dy = if (pa.y > pb.y) pa.y - pb.y + 1 else pb.y - pa.y + 1;
+    const dx = if (pa.r > pb.r) pa.r - pb.r + 1 else pb.r - pa.r + 1;
+    const dy = if (pa.c > pb.c) pa.c - pb.c + 1 else pb.c - pa.c + 1;
     return dx * dy;
 }
 
