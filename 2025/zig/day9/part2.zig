@@ -118,6 +118,39 @@ pub fn main() !void {
     }
 }
 
+fn searchBetween(
+    list: *const union(enum) {
+        vlist: VLines,
+        hlist: HLines,
+        fn len(list: @This()) usize {
+            return switch (list) {
+                .vlist => |l| l.items.len,
+                .hlist => |l| l.items.len,
+            };
+        }
+        fn get(list: @This(), idx: usize) usize {
+            assert(idx >= 0);
+            assert(idx < list.len());
+            return switch (list) {
+                .hlist => |l| l.items[idx],
+                .vlist => |l| l.items[idx],
+            };
+        }
+    },
+    low: usize,
+    high: usize,
+) error{NotFound}!.{ usize, usize } {
+    var i_start: usize = 0;
+    var i_end: usize = list.len() - 1;
+
+    if (list.get(i_start) > high or list.get(i_end) < low)
+        return error{NotFound};
+
+    while (i_start < i_end) {
+        const mid = (i_end - i_start) / 2;
+    }
+}
+
 fn getArea(pa: Position, pb: Position) usize {
     const dx = if (pa.r > pb.r) pa.r - pb.r + 1 else pb.r - pa.r + 1;
     const dy = if (pa.c > pb.c) pa.c - pb.c + 1 else pb.c - pa.c + 1;
