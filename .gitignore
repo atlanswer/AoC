@@ -1,3 +1,6 @@
+# Input files
+input/
+
 # Zig
 .zig-cache/
 zig-out/
