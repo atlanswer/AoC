@@ -26,17 +26,17 @@ const VLines = std.ArrayList(VLine);
 pub fn main() !void {
     defer arena.deinit();
 
-    const input =
-        \\7,1
-        \\11,1
-        \\11,7
-        \\9,7
-        \\9,5
-        \\2,5
-        \\2,3
-        \\7,3
-    ;
-    // const input = try getInput();
+    // const input =
+    //     \\7,1
+    //     \\11,1
+    //     \\11,7
+    //     \\9,7
+    //     \\9,5
+    //     \\2,5
+    //     \\2,3
+    //     \\7,3
+    // ;
+    const input = try getInput();
 
     var input_it = std.mem.splitScalar(u8, std.mem.trim(u8, input, "\n"), '\n');
 
@@ -59,33 +59,33 @@ pub fn main() !void {
         if (r > height) height = r + 1;
         if (c > width) width = c + 1;
 
-        if (positions.items.len > 0) {
-            const last_position = positions.getLast();
-
-            if (position.r == last_position.r) {
-                const cs, const ce = if (position.c < last_position.c)
-                    .{ position.c, last_position.c }
-                else
-                    .{ last_position.c, last_position.c };
-                try horizontal_lines.append(allocator, .{ .r = position.r, .cs = cs, .ce = ce });
-            }
-
-            if (position.c == last_position.c) {
-                const rs, const re = if (position.r < last_position.r)
-                    .{ position.r, last_position.r }
-                else
-                    .{ last_position.r, position.r };
-                try vertical_lines.append(allocator, .{ .c = position.c, .rs = rs, .re = re });
-            }
-        }
-
         try positions.append(allocator, position);
 
         line_count += 1;
     }
-
-    print("Grid width: {}, height: {}\n", .{ width, height });
     print("Line count: {}\n", .{line_count});
+    print("Grid width: {}, height: {}\n", .{ width, height });
+
+    for (0..positions.items.len) |idx| {
+        const position = positions.items[idx];
+        const last_position = if (idx == 0) positions.items[positions.items.len - 1] else positions.items[idx - 1];
+
+        if (position.r == last_position.r) {
+            const cs, const ce = if (position.c < last_position.c)
+                .{ position.c, last_position.c }
+            else
+                .{ last_position.c, position.c };
+            try horizontal_lines.append(allocator, .{ .r = position.r, .cs = cs, .ce = ce });
+        }
+
+        if (position.c == last_position.c) {
+            const rs, const re = if (position.r < last_position.r)
+                .{ position.r, last_position.r }
+            else
+                .{ last_position.r, position.r };
+            try vertical_lines.append(allocator, .{ .c = position.c, .rs = rs, .re = re });
+        }
+    }
 
     std.mem.sortUnstable(HLine, horizontal_lines.items, {}, struct {
         fn hLineLessThan(_: void, a: HLine, b: HLine) bool {
@@ -99,14 +99,16 @@ pub fn main() !void {
         }
     }.vLineLessThan);
 
-    print("horizontal_lines:\n", .{});
-    for (horizontal_lines.items) |h| {
-        print("{}\n", .{h});
-    }
-    print("vertical_lines:\n", .{});
-    for (vertical_lines.items) |v| {
-        print("{}\n", .{v});
-    }
+    // print("horizontal_lines:\n", .{});
+    // for (horizontal_lines.items) |h| {
+    //     print("{}\n", .{h});
+    // }
+    print("Horizontal lines: {}\n", .{horizontal_lines.items.len});
+    // print("vertical_lines:\n", .{});
+    // for (vertical_lines.items) |v| {
+    //     print("{}\n", .{v});
+    // }
+    print("Vertical lines: {}\n", .{vertical_lines.items.len});
 
     var max_area: usize = 0;
 
@@ -114,43 +116,43 @@ pub fn main() !void {
         outer: for (positions.items[i + 1 ..]) |p2| {
             const rs, const re = if (p1.r < p2.r) .{ p1.r, p2.r } else .{ p2.r, p1.r };
             const cs, const ce = if (p1.c < p2.c) .{ p1.c, p2.c } else .{ p2.c, p1.c };
-            const cond = rs == 2 and cs == 3 and re == 9 and ce == 5;
-            if (!cond) continue;
-            print("tl: {},{}, br: {},{}\n", .{ rs, cs, re, ce });
+            // print("tl: {},{}, br: {},{}\n", .{ rs, cs, re, ce });
 
             // Horizontal lines
             {
                 const i_low = searchBetween(.{ .hlines = &horizontal_lines }, rs, .gt);
-                print("i_low: {any}\n", .{i_low});
+                // print("--- i_low: {any}\n", .{i_low});
                 const i_high = searchBetween(.{ .hlines = &horizontal_lines }, re, .lt);
-                print("i_high: {any}\n", .{i_high});
-
-                print("hline: low: {any}, high: {any}\n", .{ i_low, i_high });
+                // print("--- i_high: {any}\n", .{i_high});
+                // print("hline: low: {any}, high: {any}\n", .{ i_low, i_high });
 
                 if (i_low != null and i_high != null) {
-                    if (i_low.? > i_high.?) continue;
-                    var idx: usize = i_low.?;
-                    while (idx <= i_high.?) : (idx += 1) {
-                        const hline = horizontal_lines.items[idx];
-                        if (hline.cs <= cs and hline.ce > cs) continue :outer;
-                        if (hline.cs < ce and hline.ce >= ce) continue :outer;
+                    if (i_low.? <= i_high.?) {
+                        var idx: usize = i_low.?;
+                        while (idx <= i_high.?) : (idx += 1) {
+                            const hline = horizontal_lines.items[idx];
+                            if (hline.cs <= cs and hline.ce > cs) continue :outer;
+                            if (hline.cs < ce and hline.ce >= ce) continue :outer;
+                        }
                     }
                 }
             }
             // Vertical lines
             {
                 const i_low = searchBetween(.{ .vlines = &vertical_lines }, cs, .gt);
+                // print("--- i_low: {any}\n", .{i_low});
                 const i_high = searchBetween(.{ .vlines = &vertical_lines }, ce, .lt);
-
-                print("vline: low: {any}, high: {any}\n", .{ i_low, i_high });
+                // print("--- i_high: {any}\n", .{i_high});
+                // print("vline: low: {any}, high: {any}\n", .{ i_low, i_high });
 
                 if (i_low != null and i_high != null) {
-                    if (i_low.? > i_high.?) continue;
-                    var idx: usize = i_low.?;
-                    while (idx <= i_high.?) : (idx += 1) {
-                        const vline = vertical_lines.items[idx];
-                        if (vline.rs <= rs and vline.re > rs) continue :outer;
-                        if (vline.rs < re and vline.re >= re) continue :outer;
+                    if (i_low.? <= i_high.?) {
+                        var idx: usize = i_low.?;
+                        while (idx <= i_high.?) : (idx += 1) {
+                            const vline = vertical_lines.items[idx];
+                            if (vline.rs <= rs and vline.re > rs) continue :outer;
+                            if (vline.rs < re and vline.re >= re) continue :outer;
+                        }
                     }
                 }
             }
@@ -187,11 +189,9 @@ fn searchBetween(
 ) ?usize {
     var i_start: usize = 0;
     var i_end: usize = list.len();
-    print("i_start: {}, i_end: {}\n", .{i_start, i_end});
 
     while (i_start < i_end) {
         const i_mid = i_start + (i_end - i_start) / 2;
-        print("i_mid: {}\n", .{i_mid});
 
         switch (relation) {
             .gt => {
