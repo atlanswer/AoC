@@ -7,7 +7,7 @@ pub fn getInput(allocator: std.mem.Allocator) ![]u8 {
 
     const input_file = std.fs.openFileAbsolute(input_file_path, .{}) catch |err| {
         if (err == std.Io.File.OpenError.FileNotFound) {
-            std.debug.print("[ERROR] File `{s}` not found.", .{input_file_path});
+            std.debug.print("[ERROR] File `{s}` not found.\n", .{input_file_path});
             std.process.exit(1);
         }
         return err;
