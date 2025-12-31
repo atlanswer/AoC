@@ -12,6 +12,9 @@ test "Execution time" {
 var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
 const allocator = arena.allocator();
 
+const Counter = @Vector(8, usize);
+// const Buttons = 
+
 pub fn main() !void {
     defer arena.deinit();
 
@@ -102,4 +105,30 @@ pub fn main() !void {
     }
 
     print("res: {}\n", .{res});
+}
+
+
+fn switchLight(light: u16, button: u16) u16 {
+    return (~light & button) | (light & ~button);
+}
+
+fn combination(n: usize, k: usize) !std.ArrayList(std.ArrayList(usize)) {
+    var result: std.ArrayList(std.ArrayList(usize)) = .empty;
+    var idxs: std.ArrayList(usize) = try .initCapacity(allocator, k);
+    for (0..k) |idx| idxs.appendAssumeCapacity(idx);
+
+    outer: while (true) {
+        try result.append(allocator, try idxs.clone(allocator));
+
+        var i: usize = k - 1;
+        while (i >= 0 and idxs.items[i] == n - k + i) : ({
+            if (i == 0) break :outer;
+            i -= 1;
+        }) {}
+
+        idxs.items[i] += 1;
+        for (i + 1..k) |nidx| idxs.items[nidx] = idxs.items[nidx - 1] + 1;
+    }
+
+    return result;
 }
