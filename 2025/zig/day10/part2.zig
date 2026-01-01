@@ -13,7 +13,6 @@ var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
 const allocator = arena.allocator();
 
 const Counter = @Vector(8, usize);
-// const Buttons = 
 
 pub fn main() !void {
     defer arena.deinit();
@@ -31,29 +30,31 @@ pub fn main() !void {
     while (input_it.next()) |line| : ({}) {
         // print("{s}\n", .{line});
 
-        var buttons: std.ArrayList(@Vector(8, usize)) = .empty;
-        var joltages: @Vector(8, usize) = undefined;
+        var buttons: std.ArrayList(Counter) = .empty;
+        var joltages: Counter = undefined;
 
         var section_it = std.mem.splitScalar(u8, line, ' ');
         while (section_it.next()) |section| {
             // Light diagram
             // if (section[0] == '[' and section[section.len - 1] == ']') {}
+
             // Button wiring schematic
             if (section[0] == '(' and section[section.len - 1] == ')') {
-                var wire_it = std.mem.splitScalar(u8, section[1 .. section.len - 1], ',');
                 var button_arr: [8]usize = .{ 0, 0, 0, 0, 0, 0, 0, 0 };
+                var wire_it = std.mem.splitScalar(u8, section[1 .. section.len - 1], ',');
                 while (wire_it.next()) |wire_s| {
                     const wire: usize = try std.fmt.parseInt(usize, wire_s, 10);
                     button_arr[wire] = 1;
                 }
-                const button: @Vector(8, usize) = button_arr;
+                const button: Counter = button_arr;
                 try buttons.append(allocator, button);
             }
-            // Joltage requirement
+
+            // Joltage counter
             if (section[0] == '{' and section[section.len - 1] == '}') {
-                var joltage_it = std.mem.splitScalar(u8, section[1 .. section.len - 1], ',');
                 var idx: usize = 0;
                 var joltage_arr: [8]usize = .{ 0, 0, 0, 0, 0, 0, 0, 0 };
+                var joltage_it = std.mem.splitScalar(u8, section[1 .. section.len - 1], ',');
                 while (joltage_it.next()) |joltage_s| : (idx += 1) {
                     const joltage = try std.fmt.parseInt(usize, joltage_s, 10);
                     joltage_arr[idx] = joltage;
@@ -61,52 +62,40 @@ pub fn main() !void {
                 joltages = joltage_arr;
             }
         }
-        // print("lights: {b:0>16}\n", .{lights});
 
-        std.mem.sortUnstable(@Vector(8, usize), buttons.items, {}, struct {
-            fn greaterThanFn(_: void, a: @Vector(8, usize), b: @Vector(8, usize)) bool {
-                const sa: usize = @reduce(.Add, a);
-                const sb: usize = @reduce(.Add, b);
-                return sa > sb;
-            }
-        }.greaterThanFn);
+        // print("button:\n", .{});
+        // for (buttons.items) |button| {
+        //     print("{any}\n", .{button});
+        // }
+        // print("joltages: {}\n", .{joltages});
 
-        print("button:\n", .{});
-        for (buttons.items) |button| {
-            print("{any}\n", .{button});
-        }
-        print("joltages: {}\n", .{joltages});
+        const step: usize = try findPresses(joltages, buttons);
+        print("step: {d}\n", .{step});
 
-        var step: usize = 0;
-
-        var cur_joltages: @Vector(8, usize) = .{ 0, 0, 0, 0, 0, 0, 0, 0 };
-        var idx: usize = 0;
-
-        while (true) {
-            if (@reduce(.And, cur_joltages == joltages)) break;
-
-            assert(idx < buttons.items.len);
-            print("idx: {}\n", .{idx});
-
-            while (true) {
-                const next_joltages = cur_joltages + buttons.items[idx];
-                if (@reduce(.Or, next_joltages > joltages)) break;
-                print("using: {}\n", .{buttons.items[idx]});
-                cur_joltages = next_joltages;
-                print("after: {}\n", .{cur_joltages});
-                step += 1;
-            }
-
-            idx += 1;
-        }
-
-        print("step: {}\n", .{step});
-        res += step;
+        res += 1;
     }
 
     print("res: {}\n", .{res});
 }
 
+fn findPresses(joltages: Counter, buttons: std.ArrayList(Counter)) !usize {
+    print("current joltage counter: {any}\n", .{joltages});
+    const max_joltage: usize = @reduce(.Max, joltages);
+    assert(max_joltage != 0);
+    print("max joltage: {d}\n", .{max_joltage});
+
+    for (1..max_joltage + 1) |cur_max_joltage| {
+        if (cur_max_joltage > buttons.items.len) break;
+        const comb = try combination(buttons.items.len, cur_max_joltage);
+        print("cur_max: {}\n", .{cur_max_joltage});
+        print("comb:\n", .{});
+        for (comb.items) |c| {
+            print("{any}\n", .{c});
+        }
+    }
+
+    return 1;
+}
 
 fn switchLight(light: u16, button: u16) u16 {
     return (~light & button) | (light & ~button);
